@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>פשוט חופש - סופרים את הימים</title>
+    <style>
+        :root {
+            --main-blue: #0ea5e9;
+            --light-blue: #f0f9ff;
+            --text-dark: #0f172a;
+            --text-gray: #64748b;
+            --white: #ffffff;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Assistant', 'Segoe UI', sans-serif;
+            background-color: var(--light-blue);
+            color: var(--text-dark);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 550px;
+            padding: 50px 20px;
+            text-align: center;
+        }
+
+        /* כותרת נקייה */
+        .header { margin-bottom: 40px; }
+        .header h1 {
+            font-size: 5rem;
+            margin: 0;
+            color: var(--main-blue);
+            font-weight: 900;
+            letter-spacing: -3px;
+        }
+        .header h2 {
+            font-size: 2.2rem;
+            margin: -10px 0 10px 0;
+            font-weight: 700;
+        }
+        .subtitle { color: var(--text-gray); font-size: 1.1rem; }
+
+        /* כרטיסיות בחירה */
+        .selector-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: var(--white);
+            border: 2px solid transparent;
+            border-radius: 20px;
+            padding: 20px 5px;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            transition: all 0.2s ease;
+        }
+
+        .card:hover { transform: translateY(-3px); }
+        .card.active {
+            border-color: var(--main-blue);
+            background-color: #e0f2fe;
+        }
+
+        .card .icon { font-size: 30px; display: block; margin-bottom: 5px; }
+        .card span { font-weight: bold; font-size: 0.95rem; }
+
+        /* תיבת שישי */
+        .toggle-box {
+            background: var(--white);
+            border-radius: 25px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .toggle-label { font-weight: bold; margin-bottom: 12px; }
+
+        /* Switch */
+        .switch { position: relative; display: inline-block; width: 60px; height: 32px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #cbd5e1; transition: .4s; border-radius: 32px;
+        }
+        .slider:before {
+            position: absolute; content: ""; height: 24px; width: 24px;
+            left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%;
+        }
+        input:checked + .slider { background-color: var(--main-blue); }
+        input:checked + .slider:before { transform: translateX(28px); }
+
+        /* כפתור */
+        .calc-btn {
+            background-color: var(--main-blue);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 18px 0;
+            font-size: 1.4rem;
+            font-weight: bold;
+            width: 100%;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 4px 6px -1px rgba(14, 165, 233, 0.4);
+        }
+
+        .calc-btn:hover { background-color: #0369a1; transform: scale(1.01); }
+
+        /* תוצאה */
+        #result-area {
+            display: none;
+            margin-top: 40px;
+            padding: 30px;
+            background: var(--white);
+            border-radius: 30px;
+            box-shadow: var(--shadow);
+            animation: fadeIn 0.5s ease;
+        }
+
+        .big-number {
+            font-size: 7rem;
+            font-weight: 900;
+            color: var(--main-blue);
+            line-height: 1;
+        }
+
+        /* פוטר */
+        .footer {
+            margin-top: 50px;
+            font-size: 0.9rem;
+            color: var(--text-gray);
+            border-top: 1px solid #e2e8f0;
+            padding-top: 20px;
+        }
+        .footer a { color: var(--main-blue); text-decoration: none; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>פשוט</h1>
+        <h2>חופש</h2>
+        <p class="subtitle">סופרים רק את ימי הלימוד שנשארו</p>
+    </div>
+
+    <div class="selector-grid">
+        <div class="card" onclick="setSchool('elementary', this)">
+            <span class="icon">🎨</span>
+            <span>יסודי</span>
+        </div>
+        <div class="card" onclick="setSchool('middle', this)">
+            <span class="icon">🎒</span>
+            <span>חטיבה</span>
+        </div>
+        <div class="card active" onclick="setSchool('high', this)">
+            <span class="icon">🎓</span>
+            <span>תיכון</span>
+        </div>
+    </div>
+
+    <div class="toggle-box">
+        <span class="toggle-label" id="friday-text">אין לימודים בשישי 😎</span>
+        <label class="switch">
+            <input type="checkbox" id="friday-toggle" onchange="updateToggleText()">
+            <span class="slider"></span>
+        </label>
+    </div>
+
+    <button class="calc-btn" onclick="doCalculation()">חשב כמה נשאר 🚀</button>
+
+    <div id="result-area">
+        <div style="font-weight: bold; color: var(--text-gray);">נשארו עוד:</div>
+        <div class="big-number" id="count-num">0</div>
+        <div style="font-size: 1.2rem; font-weight: bold;">ימי לימוד!</div>
+    </div>
+
+    <div class="footer">
+        <p>הספירה אינה כוללת שבתות וחגים.</p>
+        באגים? שלחו מייל: <a href="mailto:torgemannevo@gmail.com">torgemannevo@gmail.com</a>
+    </div>
+</div>
+
+<script>
+    let schoolType = 'high';
+
+    function setSchool(type, el) {
+        schoolType = type;
+        document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
+        el.classList.add('active');
+    }
+
+    function updateToggleText() {
+        const isChecked = document.getElementById('friday-toggle').checked;
+        document.getElementById('friday-text').innerText = isChecked ? "לומדים בשישי... 😟" : "אין לימודים בשישי 😎";
+    }
+
+    function doCalculation() {
+        const now = new Date();
+        const year = 2026;
+        let target = (schoolType === 'elementary') ? new Date(year, 5, 30) : new Date(year, 5, 20);
+
+        const studyOnFriday = document.getElementById('friday-toggle').checked;
+        let count = 0;
+        let temp = new Date(now);
+        temp.setHours(0,0,0,0);
+
+        while (temp < target) {
+            let day = temp.getDay(); 
+            let isSchool = true;
+            if (day === 6) isSchool = false; // שבת
+            if (day === 5 && !studyOnFriday) isSchool = false; // שישי
+
+            if (isSchool) count++;
+            temp.setDate(temp.getDate() + 1);
+        }
+
+        const res = document.getElementById('result-area');
+        res.style.display = 'block';
+        document.getElementById('count-num').innerText = count;
+        res.scrollIntoView({ behavior: 'smooth' });
+    }
+</script>
+
+</body>
+</html>
